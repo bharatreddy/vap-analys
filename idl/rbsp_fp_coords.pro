@@ -60,7 +60,7 @@ for rr=0.d , n_elements(dateArr)-1 do begin
 	lonFpRbspNth = tmpp[1]
 
 
-	print, "aacgm lat, lon---->", latFpRbspNth, lonFpRbspNth
+	print, "aacgm lat, lon---->", arr_geo_coords, latFpRbspNth, lonFpRbspNth
 
 endfor
 

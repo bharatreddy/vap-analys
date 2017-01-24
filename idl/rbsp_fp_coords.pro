@@ -14,7 +14,7 @@ dateArr = lonarr(nel_arr_all)
 timeArr = intarr(nel_arr_all)
 xGeoArr = fltarr(nel_arr_all)
 yGeoArr = fltarr(nel_arr_all)
-zGeoArr = lonarr(nel_arr_all)
+zGeoArr = fltarr(nel_arr_all)
 satArr = strarr(nel_arr_all)
 
 rcnt=0.d
@@ -30,6 +30,11 @@ WHILE not eof(1) do begin
 	yGeoArr[rcnt] = yGeoVal
 	zGeoArr[rcnt] = zGeoVal
 	satArr[rcnt] = satVal
+
+	print, "x,y,z geovals----->", xGeoVal, yGeoVal, zGeoVal
+
+	if rcnt gt 10 then break
+
 
 	rcnt += 1
 
@@ -59,8 +64,10 @@ for rr=0.d , n_elements(dateArr)-1 do begin
 	latFpRbspNth = tmpp[0]
 	lonFpRbspNth = tmpp[1]
 
+	print, "aacgm lat, lon---->", arr_geo_coords
+	print, "hiii--->", glat, glon, alt, latFpRbspNth, lonFpRbspNth
 
-	print, "aacgm lat, lon---->", arr_geo_coords, latFpRbspNth, lonFpRbspNth
+	if rr gt 10. then break
 
 endfor
 

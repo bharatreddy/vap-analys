@@ -116,8 +116,8 @@ class LshellRbsp(object):
                         + ":" + currTimeStr, "%Y%m%d:%H%M" )
 
 
-    def get_fp_fit_vel(self, inpDateTime, southFps=False,\
-         filterLat=0.5, filterMLT=0.5):
+    def get_fp_fit_vel(self, inpDateTime, southFps=False, filterLat=0.5, \
+         filterMLT=0.5, plotFitVelSatA=None, plotFitVelSatB=None):
         """
         Given an input datetime get lshell fit results
         at the footprints of satellites! 
@@ -173,17 +173,73 @@ class LshellRbsp(object):
         currSatBDF = currSatBDF[ ( currSatBDF["del_mlat"] < filterLat ) &\
                         ( currSatBDF["del_mlt"] < filterMLT ) ].\
                         reset_index(drop=True)
+        # Setup a DF to store the results
+        # SAT-A
+        rbspLocMlat = currSatADF["MLat"+hemiChosen].unique()[0]
+        rbspLocMlt = currSatADF["MLT"+hemiChosen].unique()[0]
+        eventTime = currSatADF["date"].unique()[0]
+        fitDFSatA = pandas.DataFrame(
+            {'rbspLocMlat': [rbspLocMlat],
+             'rbspLocMlt': [rbspLocMlt],
+             'eventTime': [eventTime],
+             'sat': ["satA"],
+             'estVelMagn': [None],
+             'estVelAzim': [None],
+             'errVelMagn': [None],
+             'errVelAzim': [None],
+             'nUniqAzims': [None],
+             'losazimRange': [None]
+            })
+        # SAT-B
+        rbspLocMlat = currSatBDF["MLat"+hemiChosen].unique()[0]
+        rbspLocMlt = currSatBDF["MLT"+hemiChosen].unique()[0]
+        eventTime = currSatBDF["date"].unique()[0]
+        fitDFSatB = pandas.DataFrame(
+            {'rbspLocMlat': [rbspLocMlat],
+             'rbspLocMlt': [rbspLocMlt],
+             'eventTime': [eventTime],
+             'sat': ["satB"],
+             'estVelMagn': [None],
+             'estVelAzim': [None],
+             'errVelMagn': [None],
+             'errVelAzim': [None],
+             'nUniqAzims': [None],
+             'losazimRange': [None]
+            })
         # We'll filter out velocities whose magnitudes are less than 100 m/s.
         currSatADF = currSatADF[ abs(currSatADF["Vlos"])\
              > 100. ].reset_index(drop=True)
         currSatBDF = currSatBDF[ abs(currSatBDF["Vlos"])\
              > 100. ].reset_index(drop=True)
         # If there is good data get an lshell fit
-        fitDF = None
+        fitDFList = []
+        rbspFitResDF = None
         if currSatADF.shape[0] > 0:
             # get fit velocities
-            fitDF = self.fit_los(currSatADF, \
-                plotName="../figs/magn-azim.pdf")
+            ( nUniqAzims, losazimRange, estVelMagn, estVelAzim,\
+             errVelMagn, errVelAzim ) = self.fit_los(currSatADF,\
+                plotName=plotFitVelSatA)
+            fitDFSatA["nUniqAzims"] = nUniqAzims
+            fitDFSatA["losazimRange"] = losazimRange
+            fitDFSatA["estVelMagn"] = estVelMagn
+            fitDFSatA["estVelAzim"] = estVelAzim
+            fitDFSatA["errVelMagn"] = errVelMagn
+            fitDFSatA["errVelAzim"] = errVelAzim
+        fitDFList.append( fitDFSatA )
+        if currSatBDF.shape[0] > 0:
+            # get fit velocities
+            ( nUniqAzims, losazimRange, estVelMagn, estVelAzim,\
+             errVelMagn, errVelAzim ) = self.fit_los(currSatBDF,\
+                plotName=plotFitVelSatB)
+            fitDFSatB["nUniqAzims"] = nUniqAzims
+            fitDFSatB["losazimRange"] = losazimRange
+            fitDFSatB["estVelMagn"] = estVelMagn
+            fitDFSatB["estVelAzim"] = estVelAzim
+            fitDFSatB["errVelMagn"] = errVelMagn
+            fitDFSatB["errVelAzim"] = errVelAzim
+        fitDFList.append( fitDFSatB )
+        # return the combined results
+        return pandas.concat(fitDFList)
 
 
     def fit_los(self, inpLosVelDF, plotName=None):
@@ -192,7 +248,6 @@ class LshellRbsp(object):
         can be derived out of the l-o-s velocities.
         """
         import pandas
-        import numpy
         import scipy.optimize
         import matplotlib.pyplot as plt
         # get a few basic parameters - azimuth range
@@ -213,9 +268,10 @@ class LshellRbsp(object):
                                             inpLosVelDF['azim'].T,\
                                             inpLosVelDF['Vlos'].T,
                                            p0=( 1000., 10. ))
-        print "popt--->", popt
-        print "err vel magn-->", pcov[0,0]**0.5
-        print "err azim-->", pcov[1,1]**0.5
+        # print "popt--->", popt
+        # print "err vel magn-->", pcov[0,0]**0.5
+        # print "err azim-->", pcov[1,1]**0.5
+        # If chosen make a plot
         if plotName is not None:
             plt.style.use('ggplot')
             thetaArr = range(-110, 120, 10)
@@ -227,6 +283,8 @@ class LshellRbsp(object):
             inpLosVelDF.plot( x="azim", y="Vlos", kind="scatter", ax=ax )
             ax.plot( thetaArr, vLosArr )
             ax.get_figure().savefig( plotName, bbox_inches='tight' )
+        return ( len( uniqAzims ), azimRange, popt[0], \
+            popt[1], pcov[0,0]**0.5, pcov[1,1]**0.5 )
 
 
 

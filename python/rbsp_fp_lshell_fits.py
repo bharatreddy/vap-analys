@@ -156,23 +156,84 @@ class LshellRbsp(object):
             hemiChosen = "Sth"
         # SAT A
         currSatADF["del_mlat"] = abs(currSatADF["MLat" + hemiChosen]\
-             - currSatADF["vlosMLAT"])
+             - currSatADF["MLAT"])
         currSatADF["del_mlt"] = abs(currSatADF["MLT" + hemiChosen]\
-             - currSatADF["vlosMLT"])
+             - currSatADF["MLT"])
         # Drop values which are far away from RBSP FPs
-        currSatADF = currSatADF[ ( currSatADF["del_mlat"] < latDiff ) &\
-                        ( currSatADF["del_mlt"] < mltDiff ) ].\
+        currSatADF = currSatADF[ ( currSatADF["del_mlat"] < filterLat ) &\
+                        ( currSatADF["del_mlt"] < filterMLT
+                         ) ].\
                         reset_index(drop=True)
         # SAT B
         currSatBDF["del_mlat"] = abs(currSatBDF["MLat" + hemiChosen]\
-             - currSatBDF["vlosMLAT"])
+             - currSatBDF["MLAT"])
         currSatBDF["del_mlt"] = abs(currSatBDF["MLT" + hemiChosen]\
-             - currSatBDF["vlosMLT"])
+             - currSatBDF["MLT"])
         # Drop values which are far away from RBSP FPs
-        currSatBDF = currSatBDF[ ( currSatBDF["del_mlat"] < latDiff ) &\
-                        ( currSatBDF["del_mlt"] < mltDiff ) ].\
+        currSatBDF = currSatBDF[ ( currSatBDF["del_mlat"] < filterLat ) &\
+                        ( currSatBDF["del_mlt"] < filterMLT ) ].\
                         reset_index(drop=True)
+        # We'll filter out velocities whose magnitudes are less than 100 m/s.
+        currSatADF = currSatADF[ abs(currSatADF["Vlos"])\
+             > 100. ].reset_index(drop=True)
+        currSatBDF = currSatBDF[ abs(currSatBDF["Vlos"])\
+             > 100. ].reset_index(drop=True)
+        # If there is good data get an lshell fit
+        fitDF = None
+        if currSatADF.shape[0] > 0:
+            # get fit velocities
+            fitDF = self.fit_los(currSatADF, \
+                plotName="../figs/magn-azim.pdf")
 
-        print currSatADF[ abs(currSatADF["Vlos"]) > 100. ]
-        print "-----------------------------------------------------------"
-        print currSatBDF[ abs(currSatBDF["Vlos"]) > 100. ]
+
+    def fit_los(self, inpLosVelDF, plotName=None):
+        """
+        In this function we'll identify if a good fit
+        can be derived out of the l-o-s velocities.
+        """
+        import pandas
+        import numpy
+        import scipy.optimize
+        import matplotlib.pyplot as plt
+        # get a few basic parameters - azimuth range
+        # number of unique azimuths
+        azimRange = inpLosVelDF["azim"].max()\
+        - inpLosVelDF["azim"].min()
+        print "azimRange--->", azimRange
+        # If azim range is less than 25, skip!
+        if abs(azimRange) < 25:
+            print "azim range not good for fitting!"
+        uniqAzims = set( list( inpLosVelDF["azim"].unique() ) )
+        print "uniqAzims--->", uniqAzims
+        # If number of unique azims are less than 3 skip!
+        if len( uniqAzims ) < 3:
+            print "num of unique azims not good for fitting!"
+        # Now do the fitting if everything works
+        popt, pcov = scipy.optimize.curve_fit(self.vel_sine_func, \
+                                            inpLosVelDF['azim'].T,\
+                                            inpLosVelDF['Vlos'].T,
+                                           p0=( 1000., 10. ))
+        print "popt--->", popt
+        print "err vel magn-->", pcov[0,0]**0.5
+        print "err azim-->", pcov[1,1]**0.5
+        if plotName is not None:
+            plt.style.use('ggplot')
+            thetaArr = range(-110, 120, 10)
+            vLosArr = [ round( \
+                self.vel_sine_func(t, Vmax=popt[0], delTheta=popt[1]) )\
+                 for t in thetaArr ]
+            fig1 = plt.figure()
+            ax = fig1.add_subplot(111)
+            inpLosVelDF.plot( x="azim", y="Vlos", kind="scatter", ax=ax )
+            ax.plot( thetaArr, vLosArr )
+            ax.get_figure().savefig( plotName, bbox_inches='tight' )
+
+
+
+    def vel_sine_func(self, theta, Vmax, delTheta):
+        import numpy
+        # Fit a sine curve for a given cell
+        # we are working in degrees but numpy deals with radians
+        # convert to radians
+        return Vmax * numpy.sin( numpy.deg2rad(theta) +\
+                                numpy.deg2rad(delTheta) )

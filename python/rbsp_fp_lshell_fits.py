@@ -264,15 +264,17 @@ class LshellRbsp(object):
         # number of unique azimuths
         azimRange = inpLosVelDF["azim"].max()\
         - inpLosVelDF["azim"].min()
-        print "azimRange--->", azimRange
-        # If azim range is less than 25, skip!
-        if abs(azimRange) < 25:
-            print "azim range not good for fitting!"
         uniqAzims = set( list( inpLosVelDF["azim"].unique() ) )
+        print "azimRange--->", azimRange
         print "uniqAzims--->", uniqAzims
+        # If azim range is less than 25, skip!
+        if abs(azimRange) < 1:
+            print "azim range not good for fitting!"
+            return ( uniqAzims, azimRange, None, None, None, None )
         # If number of unique azims are less than 3 skip!
-        if len( uniqAzims ) < 3:
+        if len( uniqAzims ) < 2:
             print "num of unique azims not good for fitting!"
+            return ( uniqAzims, azimRange, None, None, None, None )
         # Now do the fitting if everything works
         popt, pcov = scipy.optimize.curve_fit(self.vel_sine_func, \
                                             inpLosVelDF['azim'].T,\

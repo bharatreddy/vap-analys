@@ -28,8 +28,6 @@ if __name__ == "__main__":
         currDt = startTime + \
                             datetime.timedelta( minutes=dd*timeInterval )
         dtStr = currDt.strftime( "%H%M" )
-        plotFitVelSatA = "../figs/satA-" + dtStr + ".pdf"
-        plotFitVelSatB = "../figs/satB-" + dtStr + ".pdf"
         # Now here check if there is a good fit for the min chosen
         # value of filter lat and mlt. If not we'll try to find a 
         # better fit by choosing a broader range!
@@ -39,11 +37,14 @@ if __name__ == "__main__":
             for flMlt in filterMLTArr:
                 # We'll try and get fitting for all
                 # lat/mlt combinations..then choose the best fit
+                plotFitVelSatA = "../figs/satA-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
+                plotFitVelSatB = "../figs/satB-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
                 resDF = rblsObj.get_fp_fit_vel(currDt, filterLat=flLat, \
                      filterMLT=flMlt, plotFitVelSatA=plotFitVelSatA,\
                       plotFitVelSatB=plotFitVelSatB)
                 resDF["filter_lat_range"] = flLat
                 resDF["filter_mlt_range"] = flMlt
+                print resDF
                 # Append the DF to a file
                 with open(outDataFile, 'a') as rFA:
                     resDF.to_csv(rFA, header=False,\

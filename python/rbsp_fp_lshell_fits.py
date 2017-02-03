@@ -175,9 +175,14 @@ class LshellRbsp(object):
                         reset_index(drop=True)
         # Setup a DF to store the results
         # SAT-A
-        rbspLocMlat = currSatADF["MLat"+hemiChosen].unique()[0]
-        rbspLocMlt = currSatADF["MLT"+hemiChosen].unique()[0]
-        eventTime = currSatADF["date"].unique()[0]
+        if currSatADF.shape[0] > 0:
+            rbspLocMlat = currSatADF["MLat"+hemiChosen].unique()[0]
+            rbspLocMlt = currSatADF["MLT"+hemiChosen].unique()[0]
+            eventTime = currSatADF["date"].unique()[0]
+        else:
+            rbspLocMlat = None
+            rbspLocMlt = None
+            eventTime = None
         fitDFSatA = pandas.DataFrame(
             {'rbspLocMlat': [rbspLocMlat],
              'rbspLocMlt': [rbspLocMlt],
@@ -191,9 +196,14 @@ class LshellRbsp(object):
              'losazimRange': [None]
             })
         # SAT-B
-        rbspLocMlat = currSatBDF["MLat"+hemiChosen].unique()[0]
-        rbspLocMlt = currSatBDF["MLT"+hemiChosen].unique()[0]
-        eventTime = currSatBDF["date"].unique()[0]
+        if currSatADF.shape[0] > 0:
+            rbspLocMlat = currSatBDF["MLat"+hemiChosen].unique()[0]
+            rbspLocMlt = currSatBDF["MLT"+hemiChosen].unique()[0]
+            eventTime = currSatBDF["date"].unique()[0]
+        else:
+            rbspLocMlat = None
+            rbspLocMlt = None
+            eventTime = None
         fitDFSatB = pandas.DataFrame(
             {'rbspLocMlat': [rbspLocMlat],
              'rbspLocMlt': [rbspLocMlt],

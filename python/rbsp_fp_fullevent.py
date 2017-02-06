@@ -24,6 +24,7 @@ if __name__ == "__main__":
     endTime = datetime.datetime( 2013, 3, 16, 10, 0 )
     delDates = endTime - startTime
     timeInterval = 2 # min
+    finResDFList = []
     for dd in range((delDates.seconds)/(60*timeInterval) + 1):
         currDt = startTime + \
                             datetime.timedelta( minutes=dd*timeInterval )
@@ -37,15 +38,26 @@ if __name__ == "__main__":
             for flMlt in filterMLTArr:
                 # We'll try and get fitting for all
                 # lat/mlt combinations..then choose the best fit
-                plotFitVelSatA = "../figs/satA-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
-                plotFitVelSatB = "../figs/satB-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
+                plotFitVelSatA = None#"../figs/satA-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
+                plotFitVelSatB = None#"../figs/satB-" + dtStr + "-" + str(flLat) + "-" + str(flMlt) + ".pdf"
                 resDF = rblsObj.get_fp_fit_vel(currDt, filterLat=flLat, \
                      filterMLT=flMlt, plotFitVelSatA=plotFitVelSatA,\
                       plotFitVelSatB=plotFitVelSatB)
                 resDF["filter_lat_range"] = flLat
                 resDF["filter_mlt_range"] = flMlt
-                print resDF
+                finResDFList.append( resDF )
+                del resDF
                 # Append the DF to a file
-                with open(outDataFile, 'a') as rFA:
-                    resDF.to_csv(rFA, header=False,\
-                                      index=False, sep=' ' )
+                # with open(outDataFile, 'a') as rFA:
+                #     resDF.to_csv(rFA, header=False,\
+                #                       index=False, sep=' ' )
+    finDF = pandas.concat( finResDFList )
+    # Filter out null values!!
+    finDF = finDF[ finDF["eventTime"].notnull() ].reset_index(drop=True)
+    finDF = finDF[ finDF["estVelAzim"].notnull() ].reset_index(drop=True)
+    # Filter out estimated azimuths which are 
+    # off by more than 20 degrees from westwards
+    finDF = finDF[ abs(finDF["estVelAzim"]) <= 20. ].reset_index()
+    finDF.to_csv(outDataFile, sep=' ',\
+                   index=False)
+    print finDF.head(200)

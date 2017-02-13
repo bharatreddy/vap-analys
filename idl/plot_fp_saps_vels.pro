@@ -156,10 +156,12 @@ ampScale = [ -1.5, 1.5 ]
 cntrMinVal = 0.2
 n_levels = 5
 coords = "mlt"
+if coords eq "mlt" then in_mlt=1
 omnCharsize = 0.5
 rad_fan_ids = [209, 208, 33, 207, 206, 205, 204, 32]
-selSymThick = 1.
-selSymSize = 1.5
+selSymThick = 0.8
+selSymSize = 0.8
+factor = 300.
 
 
 rad_map_read, dateSel
@@ -320,10 +322,10 @@ for srch=0,nele_search-1 do begin
 				param = "velocity", AJ_filter = 1, rad_sct_flg_val=2
 	
 	;rad_map_overlay_dmsp, dateCurrPlot, timeCurrPlot, coords=coords, /ssies;,/ssj4
-	;rad_map_overlay_poes, dateCurrPlot, timeCurrPlot, coords=coords
-	;rad_map_overlay_poes_bnd, dateCurrPlot, timeCurrPlot, coords = coords, $
-				;fitline_color = get_red(), fitline_style = 3, $
-				;fitline_thick = 5
+	rad_map_overlay_poes, dateCurrPlot, timeCurrPlot, coords=coords
+	rad_map_overlay_poes_bnd, dateCurrPlot, timeCurrPlot, coords = coords, $
+				fitline_color = get_red(), fitline_style = 3, $
+				fitline_thick = 5
 
 	print, "nor,tec-->", dateCurrPlot, timeCurrPlot
 
@@ -338,9 +340,55 @@ for srch=0,nele_search-1 do begin
 		print, ' no rbsp footprint found!!!--->', timeCurrPlot
 	endif else begin
 		stereCr_low = calc_stereo_coords( rbspMlatArr[jindsRBsp], rbspMltArr[jindsRBsp], /mlt )
-		colValCurr = get_color_index(vFitArr[jindsRBsp],scale=fitVelScale,colorsteps=get_colorsteps(),ncolors=get_ncolors(), param='power')
-		oplot, [stereCr_low[0]], [stereCr_low[1]], color = colValCurr,thick = selSymThick, psym=8, SYMSIZE=selSymSize
-		oplot, [stereCr_low[0]], [stereCr_low[1]], color = colValCurr,thick = selSymThick, psym=1, SYMSIZE=selSymSize
+
+		lat = rbspMlatArr[jindsRBsp]
+		plon = rbspMltArr[jindsRBsp]
+		vel = vFitArr[jindsRBsp]
+		azim = -90.
+
+		lon = ( plon + 360. ) mod 360.
+
+		tmp = calc_stereo_coords(lat, plon, hemisphere=hemisphere, mlt=(coords eq 'mlt') )
+		x_pos_vec = tmp[0]
+		y_pos_vec = tmp[1]
+
+		vec_azm = azim*!dtor + ( hemisphere lt 0. ? !pi : 0. )
+		vec_len = factor*vel/!re/1e3
+
+
+		; Find latitude of end of vector
+		coLat = (90. - abs(lat))*!dtor
+		cos_coLat = (COS(vec_len)*COS(coLat) + $
+			SIN(vec_len)*SIN(coLat)*COS(vec_azm) < 1.) > (-1.)
+		vec_coLat = ACOS(cos_coLat)
+		vec_lat = 90.-vec_coLat*!radeg 
+
+		cos_dLon = ((COS(vec_len) - $
+					COS(vec_coLat)*COS(coLat))/(SIN(vec_coLat)*SIN(coLat)) < 1.) > (-1.)
+		delta_lon = ACOS(cos_dLon)
+		IF vec_azm LT 0 THEN $
+			delta_lon = -delta_lon
+		vec_lon = (lon*( in_mlt ? 15. : 1. )*!dtor + delta_lon	)*!radeg
+
+		tmp = calc_stereo_coords(vec_lat, vec_lon)
+		new_x = tmp[0]
+		new_y = tmp[1]
+
+
+		vec_col = get_black()
+
+		oplot, [x_pos_vec], [y_pos_vec], psym=8, $
+			symsize=selSymSize, color=vec_col, noclip=0
+
+		oplot, [x_pos_vec,new_x], [y_pos_vec,new_y],$
+				thick=2, COLOR=vec_col, noclip=0
+
+
+
+
+		;colValCurr = get_black();get_color_index(vFitArr[jindsRBsp],scale=fitVelScale,colorsteps=get_colorsteps(),ncolors=get_ncolors(), param='power')
+		;oplot, [stereCr_low[0]], [stereCr_low[1]], color = colValCurr,thick = selSymThick, psym=8, SYMSIZE=selSymSize
+		;oplot, [stereCr_low[0]], [stereCr_low[1]], color = colValCurr,thick = selSymThick, psym=1, SYMSIZE=selSymSize+0.5
 	endelse
 
 	

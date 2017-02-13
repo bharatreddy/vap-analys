@@ -28,6 +28,7 @@ if __name__ == "__main__":
     for dd in range((delDates.seconds)/(60*timeInterval) + 1):
         currDt = startTime + \
                             datetime.timedelta( minutes=dd*timeInterval )
+        print "current time--->", currDt
         dtStr = currDt.strftime( "%H%M" )
         resDF = rblsObj.get_fp_westwards_vel(currDt)
         finResDFList.append( resDF )

@@ -117,7 +117,7 @@ class WestwardVels(object):
 
 
     def get_fp_westwards_vel(self, inpDateTime, southFps=False,\
-         filterLat=0.5, filterMLT=0.2):
+         filterLat=0.5, filterMLT=0.25):
         """
         Given an input datetime get lshell fit results
         at the footprints of satellites! 
@@ -192,7 +192,7 @@ class WestwardVels(object):
              'estVelAzim': [None]
             })
         # SAT-B
-        if currSatADF.shape[0] > 0:
+        if currSatBDF.shape[0] > 0:
             rbspLocMlat = currSatBDF["MLat"+hemiChosen].unique()[0]
             rbspLocMlt = currSatBDF["MLT"+hemiChosen].unique()[0]
             eventTime = currSatBDF["date"].unique()[0]
@@ -210,11 +210,11 @@ class WestwardVels(object):
              'estVelMagn': [None],
              'estVelAzim': [None]
             })
-        # We'll filter out velocities whose magnitudes are less than 100 m/s.
+        # We'll filter out velocities whose magnitudes are less than 50 m/s.
         currSatADF = currSatADF[ abs(currSatADF["Vlos"])\
-             > 100. ].reset_index(drop=True)
+             > 50. ].reset_index(drop=True)
         currSatBDF = currSatBDF[ abs(currSatBDF["Vlos"])\
-             > 100. ].reset_index(drop=True)
+             > 50. ].reset_index(drop=True)
         # If there is good data get an lshell fit
         fitDFList = []
         rbspFitResDF = None

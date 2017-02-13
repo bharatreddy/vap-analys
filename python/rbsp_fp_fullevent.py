@@ -18,9 +18,9 @@ if __name__ == "__main__":
     rblsObj = rbsp_fp_lshell_fits.LshellRbsp(inpLosVelFile, rbspSatAFile, \
              rbspSatBFile, inpSAPSDataFile=inpSAPSDataFile, applyPOESBnd=False)
     # Out data file
-    outDataFile = "../data/final_results_test.txt"
+    outDataFile = "../data/final_results-mar16.txt"
     # Loop through the entire event
-    startTime = datetime.datetime( 2013, 3, 16, 6, 30 )
+    startTime = datetime.datetime( 2013, 3, 16, 9, 0 )
     endTime = datetime.datetime( 2013, 3, 16, 10, 0 )
     delDates = endTime - startTime
     timeInterval = 2 # min

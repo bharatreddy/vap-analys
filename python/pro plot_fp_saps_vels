@@ -1,0 +1,14 @@
+pro plot_fp_saps_vels
+
+fname_event='/home/bharatr/Docs/data/mar16-fit-rbspB.txt' 
+
+nel_arr_all = 2000
+dateArr = lonarr(nel_arr_all)
+radIdArr = intarr(nel_arr_all)
+minTimeArr = uintarr(nel_arr_all)
+maxTimeArr = uintarr(nel_arr_all)
+
+dateStr = lonarr(1)
+radId = intarr(1)
+minTime = uintarr(1)
+maxTime = uintarr(1)

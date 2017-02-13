@@ -188,6 +188,8 @@ class LshellRbsp(object):
              'rbspLocMlt': [rbspLocMlt],
              'eventTime': [eventTime],
              'sat': ["satA"],
+             'losVelMagn': [None],
+             'losVelAzim': [None],
              'estVelMagn': [None],
              'estVelAzim': [None],
              'errVelMagn': [None],
@@ -209,6 +211,8 @@ class LshellRbsp(object):
              'rbspLocMlt': [rbspLocMlt],
              'eventTime': [eventTime],
              'sat': ["satB"],
+             'losVelMagn': [None],
+             'losVelAzim': [None],
              'estVelMagn': [None],
              'estVelAzim': [None],
              'errVelMagn': [None],
@@ -225,6 +229,17 @@ class LshellRbsp(object):
         fitDFList = []
         rbspFitResDF = None
         if currSatADF.shape[0] > 0:
+            # get the closest velocity in Mlat and MLT
+            minLocVelSatA = currSatADF[\
+                 currSatADF["del_mlt"] == currSatADF["del_mlt"].min() ]
+            if minLocVelSatA.shape[0] == 1  :
+                fitDFSatA["losVelMagn"] = minLocVelSatA["Vlos"].tolist()[0]
+                fitDFSatA["losVelAzim"] = minLocVelSatA["azim"].tolist()[0]
+            else:
+                minLocVelSatA = minLocVelSatA[ minLocVelSatA["del_mlat"]\
+                 == minLocVelSatA["del_mlat"].min() ]
+                fitDFSatA["losVelMagn"] = minLocVelSatA["Vlos"].tolist()[0]
+                fitDFSatA["losVelAzim"] = minLocVelSatA["azim"].tolist()[0]
             # get fit velocities
             ( nUniqAzims, losazimRange, estVelMagn, estVelAzim,\
              errVelMagn, errVelAzim ) = self.fit_los(currSatADF,\
@@ -237,6 +252,17 @@ class LshellRbsp(object):
             fitDFSatA["errVelAzim"] = errVelAzim
         fitDFList.append( fitDFSatA )
         if currSatBDF.shape[0] > 0:
+            # get the closest velocity in Mlat and MLT
+            minLocVelsatB = currSatBDF[\
+                 currSatBDF["del_mlt"] == currSatBDF["del_mlt"].min() ]
+            if minLocVelsatB.shape[0] == 1  :
+                fitDFSatB["losVelMagn"] = minLocVelsatB["Vlos"].tolist()[0]
+                fitDFSatB["losVelAzim"] = minLocVelsatB["azim"].tolist()[0]
+            else:
+                minLocVelsatB = minLocVelsatB[ minLocVelsatB["del_mlat"]\
+                 == minLocVelsatB["del_mlat"].min() ]
+                fitDFSatB["losVelMagn"] = minLocVelsatB["Vlos"].tolist()[0]
+                fitDFSatB["losVelAzim"] = minLocVelsatB["azim"].tolist()[0]
             # get fit velocities
             ( nUniqAzims, losazimRange, estVelMagn, estVelAzim,\
              errVelMagn, errVelAzim ) = self.fit_los(currSatBDF,\

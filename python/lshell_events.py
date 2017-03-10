@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # inpSAPSDataFile = None
     lsObj = lshell_events.LshellFit(inpLosVelFile, \
         inpSAPSDataFile=inpSAPSDataFile)
-    inpDt = datetime.datetime( 2013, 6, 22, 5, 0 )
+    inpDt = datetime.datetime( 2013, 6, 22, 6, 30 )
     resDF = lsObj.get_timewise_lshell_fits(inpDt)
     print resDF
     # plot the results
@@ -134,9 +134,9 @@ class LshellFit(object):
         import numpy
         import pandas
         #### filter for SAPS velocities ####
-        # remove velocies whose magnitude is less than 200 m/s
+        # remove velocies whose magnitude is less than 50 m/s
         self.velsDataDF = self.velsDataDF[ \
-                abs(self.velsDataDF["Vlos"]) >= 150. ]
+                abs(self.velsDataDF["Vlos"]) >= 50. ]
         # SAPS(westward) Vlos are positive for positive azimuths
         #  and vice versa. Filter the others out.
         self.velsDataDF = self.velsDataDF[ \

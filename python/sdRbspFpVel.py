@@ -101,6 +101,7 @@ def get_vel_sd_rbFP(inputDT, inpLosVelFile, inpSAPSDataFile):
             nrstLocDF = nrstLocSatBDF
     return nrstLocDF
 
+
 if __name__ == "__main__":
     import datetime
     import pandas

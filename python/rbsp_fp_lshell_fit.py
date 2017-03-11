@@ -1,5 +1,5 @@
 if __name__ == "__main__":
-    import rbsp_fp_westwards_fit
+    import rbsp_fp_lshell_fit
     import datetime
     inpLosVelFile = \
         "../data/formatted-vels-20130622.txt"
@@ -7,10 +7,11 @@ if __name__ == "__main__":
         "../data/processedSaps-rbsp.txt"
     rbspSatAFile = "../data/rbsp_iono_satA.txt"
     rbspSatBFile = "../data/rbsp_iono_satB.txt"
-    rblsObj = rbsp_fp_westwards_fit.WestwardVels(inpLosVelFile, rbspSatAFile, \
+    rblsObj = rbsp_fp_lshell_fit.FittedVels(inpLosVelFile, rbspSatAFile, \
              rbspSatBFile, inpSAPSDataFile=inpSAPSDataFile, applyPOESBnd=False)
-    inpDt = datetime.datetime( 2013, 3, 16, 9, 40 )
-    resDF = rblsObj.get_fp_westwards_vel(inpDt)
+    inpDt = datetime.datetime( 2013, 6, 22, 6, 30 )
+    resDF = rblsObj.get_fp_fitted_vel(inpDt)
+    print resDF
 
 
 class FittedVels(object):
@@ -56,6 +57,8 @@ class FittedVels(object):
                  "MLTNth", "MLatSth", "MLonSth", "MLTSth"] ].astype(float)
         self.rbspSatADF["date"] = self.rbspSatADF.apply( \
             self.convert_to_datetime, axis=1 )
+        self.rbspSatADF["hour"] = [ x.strftime("%H") for x\
+                     in self.rbspSatADF["date"] ]
         # READ RBSP SAT B DATA
         self.rbspSatBDF = pandas.read_csv(rbspSatBFile, \
                              delim_whitespace=True, header=None)
@@ -65,6 +68,8 @@ class FittedVels(object):
                  "MLTNth", "MLatSth", "MLonSth", "MLTSth"] ].astype(float)
         self.rbspSatBDF["date"] = self.rbspSatBDF.apply(\
              self.convert_to_datetime, axis=1 )
+        self.rbspSatBDF["hour"] = [ x.strftime("%H") for x\
+                     in self.rbspSatBDF["date"] ]
 
 
 

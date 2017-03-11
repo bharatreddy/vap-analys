@@ -236,7 +236,7 @@ class FittedVels(object):
                         ( currSatBDF["del_mlt"] < filterMLT ) ].\
                         reset_index(drop=True)
         # Get the best azim from the nearest MLT
-        azimDF = self.get_fitvel_sd_nearest( inputDT, \
+        azimDF = self.get_fitvel_sd_nearest( inpDateTime, \
             self.losdataFile, self.inpSAPSDataFile )
         # Setup a DF to store the results
         # SAT-A

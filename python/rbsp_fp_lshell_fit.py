@@ -178,10 +178,14 @@ class FittedVels(object):
                 nrstLocDF = pandas.concat( [ nrstLocDF, nrstLocSatBDF ] )
             else:
                 nrstLocDF = nrstLocSatBDF
+        print "nrstLocDF"
+        print nrstLocDF
+        print "nrstLocDF"
+        return nrstLocDF
 
 
     def get_fp_fitted_vel(self, inpDateTime, southFps=False,\
-         filterLat=0.5, filterMLT=0.25):
+         filterLat=1., filterMLT=0.5):
         """
         Given an input datetime get lshell fit results
         at the footprints of satellites! 

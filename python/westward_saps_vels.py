@@ -21,8 +21,8 @@ if __name__ == "__main__":
     # Out data file
     outDataFile = "../data/westWards-mar16.txt"
     # Loop through the entire event
-    startTime = datetime.datetime( 2013, 6, 22, 6, 0 )
-    endTime = datetime.datetime( 2013, 6, 22, 7, 30 )
+    startTime = datetime.datetime( 2013, 6, 22, 6, 20 )
+    endTime = datetime.datetime( 2013, 6, 22, 6, 40 )
     delDates = endTime - startTime
     timeInterval = 2 # min
     finResDFList = []
@@ -32,11 +32,12 @@ if __name__ == "__main__":
         print "current time--->", currDt
         dtStr = currDt.strftime( "%H%M" )
         resDF = rblsObj.get_fp_fitted_vel(currDt)
+        print resDF
         finResDFList.append( resDF )
         del resDF
     finDF = pandas.concat( finResDFList )
     # Filter out null values!!
-    finDF = finDF[ finDF["eventTime"].notnull() ].reset_index(drop=True)
+    # finDF = finDF[ finDF["eventTime"].notnull() ].reset_index(drop=True)
     finDF = finDF[ finDF["estVelAzim"].notnull() ].reset_index(drop=True)
     finDF.to_csv(outDataFile, sep=' ',\
                    index=False)

@@ -21,8 +21,8 @@ if __name__ == "__main__":
     # Out data file
     outDataFile = "../data/westWards-mar16.txt"
     # Loop through the entire event
-    startTime = datetime.datetime( 2013, 6, 22, 6, 20 )
-    endTime = datetime.datetime( 2013, 6, 22, 6, 40 )
+    startTime = datetime.datetime( 2013, 6, 22, 6, 0 )
+    endTime = datetime.datetime( 2013, 6, 22, 6, 20 )
     delDates = endTime - startTime
     timeInterval = 2 # min
     finResDFList = []

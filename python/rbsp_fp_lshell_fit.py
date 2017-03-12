@@ -178,9 +178,9 @@ class FittedVels(object):
                 nrstLocDF = pandas.concat( [ nrstLocDF, nrstLocSatBDF ] )
             else:
                 nrstLocDF = nrstLocSatBDF
-        print "nrstLocDF"
-        print nrstLocDF
-        print "nrstLocDF"
+        # print "nrstLocDF"
+        # print nrstLocDF
+        # print "nrstLocDF"
         return nrstLocDF
 
 
@@ -204,11 +204,15 @@ class FittedVels(object):
                      "date", "MLatNth", "MLonNth", "MLTNth", "sat", "hour"] ]
             currSatBDF = currSatBDF[ ["dateStr", "timeStr",\
                      "date", "MLatNth", "MLonNth", "MLTNth", "sat", "hour"] ]
+            currSatADF['NormMLTNth'] = [ x-24 if x >= 12 else x for x in currSatADF['MLTNth'] ]
+            currSatBDF['NormMLTNth'] = [ x-24 if x >= 12 else x for x in currSatBDF['MLTNth'] ]
         else:
             currSatADF = currSatADF[ ["dateStr", "timeStr",\
                      "date", "MLatSth", "MLonSth", "MLTSth", "sat", "hour"] ]
             currSatBDF = currSatBDF[ ["dateStr", "timeStr",\
                      "date", "MLatSth", "MLonSth", "MLTSth", "sat", "hour"] ]
+            currSatADF['NormMLTSth'] = [ x-24 if x >= 12 else x for x in currSatADF['MLTSth'] ]
+            currSatBDF['NormMLTNormMLTSthNth'] = [ x-24 if x >= 12 else x for x in currSatBDF['MLTSth'] ]
         # Now filter losvelDF for the given time
         currLosDF = self.losSDVelDF[ self.losSDVelDF["date"]\
                             == inpDateTime ].reset_index(drop=True)
@@ -223,18 +227,24 @@ class FittedVels(object):
         # SAT A
         currSatADF["del_mlat"] = abs(currSatADF["MLat" + hemiChosen]\
              - currSatADF["MLAT"])
-        currSatADF["del_mlt"] = abs(currSatADF["MLT" + hemiChosen]\
-             - currSatADF["MLT"])
+        currSatADF["del_mlt"] = abs(currSatADF["NormMLT" + hemiChosen]\
+             - currSatADF["normMLT"])
+        print "---------------------check point 1---------------------"
+        print currSatADF.head()
+        print "---------------------check point 1---------------------"
         # Drop values which are far away from RBSP FPs
         currSatADF = currSatADF[ ( currSatADF["del_mlat"] < filterLat ) &\
                         ( currSatADF["del_mlt"] < filterMLT
                          ) ].\
                         reset_index(drop=True)
+        print "---------------------check point 2---------------------"
+        print currSatADF.head()
+        print "---------------------check point 2---------------------"
         # SAT B
         currSatBDF["del_mlat"] = abs(currSatBDF["MLat" + hemiChosen]\
              - currSatBDF["MLAT"])
-        currSatBDF["del_mlt"] = abs(currSatBDF["MLT" + hemiChosen]\
-             - currSatBDF["MLT"])
+        currSatBDF["del_mlt"] = abs(currSatBDF["NormMLT" + hemiChosen]\
+             - currSatBDF["normMLT"])
         # Drop values which are far away from RBSP FPs
         currSatBDF = currSatBDF[ ( currSatBDF["del_mlat"] < filterLat ) &\
                         ( currSatBDF["del_mlt"] < filterMLT ) ].\
@@ -281,11 +291,17 @@ class FittedVels(object):
              'estVelMagn': [None],
              'estVelAzim': [None]
             })
+        print "---------------------check point 3---------------------"
+        print currSatADF.head()
+        print "---------------------check point 3---------------------"
         # We'll filter out velocities whose magnitudes are less than 50 m/s.
         currSatADF = currSatADF[ abs(currSatADF["Vlos"])\
              > 50. ].reset_index(drop=True)
         currSatBDF = currSatBDF[ abs(currSatBDF["Vlos"])\
              > 50. ].reset_index(drop=True)
+        print "---------------------check point 4---------------------"
+        print currSatADF.head()
+        print "---------------------check point 4---------------------"
         # If there is good data get an lshell fit
         fitDFList = []
         rbspFitResDF = None
@@ -305,6 +321,9 @@ class FittedVels(object):
                 lostFpVelAazimSatA = minLocVelSatA["azim"].tolist()[0]
                 fitDFSatA["losVelMagn"] = lostFpVelMagnSatA
                 fitDFSatA["losVelAzim"] = lostFpVelAazimSatA
+            print "---------------------check point 5---------------------"
+            print minLocVelSatA
+            print "---------------------check point 5---------------------"
             # Now get the nearest azim from the fit results, if nothing found 
             # assume the velocities are perfectly westwards!
             if azimDF is None:

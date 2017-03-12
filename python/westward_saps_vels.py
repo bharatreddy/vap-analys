@@ -7,7 +7,7 @@ if __name__ == "__main__":
     import pandas
     import datetime
     import os
-    import rbsp_fp_westwards_fit
+    import rbsp_fp_lshell_fit
     # File info
     # inpLosVelFile = \
     #     "../data/frmtd-saps-vels-20130316.txt"
@@ -41,3 +41,6 @@ if __name__ == "__main__":
     finDF.to_csv(outDataFile, sep=' ',\
                    index=False)
     print finDF.head(200)
+    # Write the data to a outfile
+    outFileName = "fitVelDataFpRbsp-" + startTime.strftime("%Y%m%d") + ".txt"
+    finDF.to_csv("../data/" + outFileName, sep=' ', index=False)

@@ -9,9 +9,10 @@ if __name__ == "__main__":
     rbspSatBFile = "../data/rbsp_iono_satB.txt"
     rblsObj = rbsp_fp_lshell_fit.FittedVels(inpLosVelFile, rbspSatAFile, \
              rbspSatBFile, inpSAPSDataFile=inpSAPSDataFile, applyPOESBnd=False)
-    inpDt = datetime.datetime( 2013, 6, 22, 6, 30 )
+    inpDt = datetime.datetime( 2013, 6, 22, 6, 0 )
     resDF = rblsObj.get_fp_fitted_vel(inpDt)
-    print resDF
+    # print "FIN---RESULT"
+    # print resDF
 
 
 class FittedVels(object):
@@ -177,7 +178,6 @@ class FittedVels(object):
                 nrstLocDF = pandas.concat( [ nrstLocDF, nrstLocSatBDF ] )
             else:
                 nrstLocDF = nrstLocSatBDF
-        return nrstLocDF
 
 
     def get_fp_fitted_vel(self, inpDateTime, southFps=False,\

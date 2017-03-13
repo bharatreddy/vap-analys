@@ -30,6 +30,12 @@ if __name__ == "__main__":
     baseDir = "/home/bharat/Documents/code/frmtd-vels/"
     # Output file to store the results
     currInpLosFile = "../data/event-saps-vels-20130622.txt"
+    fitResFile = "../data/fitted_vels_jun22.txt"
+    timeInterval = 2 # min
+    # Before appending to the file! delete it if it 
+    # exists already. We dont want to append to old data!
+    if os.path.isfile( fitResFile ):
+        os.remove( fitResFile )
     # Before appending to the file! delete it if it 
     # exists already. We dont want to append to old data!
     if os.path.isfile( fitResFile ):

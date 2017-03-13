@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # File info
     # inpLosVelFile = \
     #     "../data/frmtd-saps-vels-20130316.txt"
-    inpLosVelFile = "../data/formatted-vels-20130622.txt"
+    inpLosVelFile = "../data/event-saps-vels-20130622.txt"
     inpSAPSDataFile = \
         "../data/processedSaps-rbsp.txt"
     rbspSatAFile = "../data/rbsp_iono_satA.txt"
@@ -21,8 +21,8 @@ if __name__ == "__main__":
     # Out data file
     outDataFile = "../data/westWards-mar16.txt"
     # Loop through the entire event
-    startTime = datetime.datetime( 2013, 6, 22, 6, 0 )
-    endTime = datetime.datetime( 2013, 6, 22, 6, 20 )
+    startTime = datetime.datetime( 2013, 6, 22, 5, 0 )
+    endTime = datetime.datetime( 2013, 6, 22, 6, 30 )
     delDates = endTime - startTime
     timeInterval = 2 # min
     finResDFList = []

@@ -103,7 +103,7 @@ class LshellFit(object):
             #                         sapsDataDF['time'], format='%Y%m%d-%H%M')
             sapsDataDF["date"] = sapsDataDF.apply( self.convert_to_datetime_sapsDF, axis=1 )
         # Now filter for SAPS velocities based on time and AO bnd
-        velAnlysDF = self.filter_saps_vels(selDateTime, sapsData=sapsDataDF)
+        velAnlysDF = self.filter_saps_vels(selDateTime, sapsData=None)
         # Divide the velocities into cells. There are two types of cells/grid
         # that we use. A smaller grid and a bigger grid. The smaller grid is 
         # mainly used to search for best fit locations in the larger grid. The 
@@ -175,6 +175,8 @@ class LshellFit(object):
                 velAnlysDF["MLAT"] < velAnlysDF["poesLat"] \
                 ].reset_index(drop=True).drop_duplicates()
             # print "shape after filtering by boundary--->", velAnlysDF.shape
+        else:
+            velAnlysDF["normMLT_x"] = velAnlysDF["normMLT"]
         # Now return the velocity DF
         return velAnlysDF
 

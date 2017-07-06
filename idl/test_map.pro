@@ -1,4 +1,4 @@
-pro rbsp_fp_coords
+pro test_map
 
 common omn_data_blk
 common dst_data_blk
@@ -8,67 +8,21 @@ internal_model = 'igrf'
 external_model='t01'
 rlim = 40.*!re
 
-
-satType = "SatA"
-fNameInputRbsp = "/home/bharatr/Docs/data/rbspPos"+satType+".txt"
-
-fNameOutRbsp = "/home/bharatr/Docs/data/rbspIonoTrace-"+satType+".txt"
-
-nel_arr_all = 1500000d
-
-
-dateVal = lonarr(1)
-timeVal = intarr(1)
-
-dateArr = lonarr(nel_arr_all)
-timeArr = intarr(nel_arr_all)
-altArr = fltarr(nel_arr_all)
-latArr = fltarr(nel_arr_all)
-lonArr = fltarr(nel_arr_all)
-julsArr = dblarr(nel_arr_all)
-
-rcnt=0.d
-OPENR, 1, fNameInputRbsp
-WHILE not eof(1) do begin
-	;; read the data line by line
-
-	READF,1, dateVal, timeVal, altVal, latVal, lonVal
-
-	dateArr[rcnt] = ulong(dateVal)
-	timeArr[rcnt] = uint(timeVal)
-	altArr[rcnt] = altVal
-	latArr[rcnt] = latVal
-	lonArr[rcnt] = lonVal
-
-	;;get jul val as well
-	sfjul, dateVal, timeVal, julVal
-	julsArr[rcnt] = julVal
-
-	;print, "read data----->", dateVal, timeVal, altVal, latVal, lonVal
-
-
-	rcnt += 1
-
-ENDWHILE         
-close,1	
-
-
-dateArr = dateArr[0:rcnt-1]
-timeArr = timeArr[0:rcnt-1]
-altArr = altArr[0:rcnt-1]
-latArr = latArr[0:rcnt-1]
-lonArr = lonArr[0:rcnt-1]
-julsArr = julsArr[0:rcnt-1]
+dateArr = [20121230]
+timeArr = [1000]
+sfjul, dateArr[0], timeArr[0], julVal
+altArr = [  17073.0 + 6371. ]
+latArr = [ -9.0 ]
+lonArr = [ -137.7 ]
+julsArr = [julVal]
 
 
 
 ; now loop through the array and calculate AACGM coordinates from the inputs
 
-openw, 1, fNameOutRbsp
-
 for rr=0.d , n_elements(dateArr)-1 do begin
 
-	_alt = altArr[rr] + !re
+	_alt = altArr[rr]
 	_lat = latArr[rr]
 	_lon = lonArr[rr]
 	
@@ -158,8 +112,13 @@ for rr=0.d , n_elements(dateArr)-1 do begin
 	;; [pdyn,dst,imf-by,imf-bz,g1,g2]
 	gmagpar = [ currPd, currDstIndex, currBy, currBz, 0.5, 1.1 ]
 	print, "gmagpar---------->", gmagpar
-	par = fltarr(10)
-	par[0:5]=gmagpar
+	
+	if external_model eq 't89' then begin
+		par = [2.]
+	endif else begin
+		par = fltarr(10)
+		par[0:5]=gmagpar
+	endelse
 
 
 	;; trace to northern hemisphere!!!
@@ -215,15 +174,9 @@ for rr=0.d , n_elements(dateArr)-1 do begin
 		mltFpRbspSth =  mlt(year, utsec, lonFpRbspSth)
 	endelse
 
-	print, "o/p--->", satType, latFpRbspNth, lonFpRbspNth, mltFpRbspNth, latFpRbspSth, lonFpRbspSth, mltFpRbspSth
-
-	printf,1, dateArr[rr], timeArr[rr], latFpRbspNth, lonFpRbspNth, mltFpRbspNth, latFpRbspSth, lonFpRbspSth, mltFpRbspSth, satType, $
-	                                                                format = '(I8, I5, 6f9.4, A5)'
-
+	print, "o/p--->", latFpRbspNth, lonFpRbspNth, mltFpRbspNth
 	
 
 endfor
-
-close,1
 
 end
